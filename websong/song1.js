@@ -1,43 +1,51 @@
-var button = {}; //เก็บสถานะว่าปุ่มไหนกดอยู่บ้าง
-var speed = 2; //ความเร็วของเกม
-//ไว้แปลงจากโน๊ตเป็นชื่อปุ่ม
+var button = {}; 
+var speed = 2; 
 var keybutton = {"C":"A", "D":"S", "E":"D", "F":"F", "G":"G", "A":"H", "B":"J", "C2":"K", "bC":"W", "bD":"E", "bF":"T", "bA":"Y", "bB":"U"};
-//แปลงจากชื่อปุ่มเป็นโน๊ต
 var buttonkey = {"A":"C", "S":"D", "D":"E", "F":"F", "G":"G", "H":"A", "J":"B", "K":"C2", "W":"bC", "E":"bD", "T":"bF", "Y":"bA", "U":"bB"};
-//ความกว้างของ Tile สำหรับให้โน๊ตตกลงมา
 var tilewidth = {"TC":50, "TbC":25, "TD":50, "TbD":25, "TE":50, "TF":50, "TbF":25, "TG":50, "TbA":25, "TA":50, "TbB":25, "TB":50};
-var score = 0;//คะแนน
-var buttonuse = ["A", "S", "D", "F", "G", "H", "J", "W", "E", "T", "Y", "U"]; //ปุ่มที่ใช้
-var presscount = 0; //นับจำนวนครั้งที่ยกนิ้วออกจากปุ่ม (ยังไม่ได้ใช้)
-var notedowned = 0; //จำนวนโน๊ตที่ตกลงมาแล้ว
-var miss = 0; //จำนวนโน๊ตที่ไม่โดนกด และ ตกขอบจอหายไปแล้ว
-var combo = 0; //นับคอมโบ
+var score = 0;
+var buttonuse = ["A", "S", "D", "F", "G", "H", "J", "W", "E", "T", "Y", "U"]; 
+var presscount = 0; 
+var notedowned = 0; 
+var miss = 0; 
+var combo = 0; 
 var maxcombo = 0;
 
-//เล่นเสียงโน๊ตต่างๆ
+
+//In summary, this function is designed to play sounds associated with specific musical notes. 
+//It sets the volume, resets the playback position, 
+//and attempts to play the sound. Additionally, 
+//it handles cases where autoplay might be restricted by attempting to play the sound again. 
+//The function is meant to be called with the name of the sound to play and the desired volume level.
+
 function playsound(soundname, vol){
-    var thesound = document.querySelector(`audio[data-key="` + soundname +`"]`); //query element เสียงที่ต้องการจาก html
+    var thesound = document.querySelector(`audio[data-key="` + soundname +`"]`)
     thesound.volume = vol;
-    thesound.pause(); //หยุดเล่นเสียงนั้น (กรณีที่เสียงถูกเล่นก่อนหน้า)
-    const playPromise = thesound.play(); //เล่นเสียง
+    thesound.pause();
+    const playPromise = thesound.play(); 
     if (playPromise !== null){
         thesound.currentTime = 0;
         playPromise.catch(() => { thesound.play(); })
-    } //ทั้งกล่องนี้ไว้กัน DOMexception ของ chrome
+    }
 }
-//รับ event การกดแป้นคีย์บอร์ด ทั้งตอนกด และ ตอนยกนิ้วออกจากปุ่ม แล้วเปลี่ยนสถานะของแต่ละปุ่มใน Object button
+
+//The purpose of this code is to keep track of the state of keys being pressed and released
+// It updates the button object with key states, increments presscount for key releases, and clears any previous key presses.
+//The condition countpress() < 2 suggests that there may be a limit on the number of keys that can be pressed simultaneously (possibly a two-key limit in this case).
 document.onkeydown = document.onkeyup = function(e){
     var key_code = String.fromCharCode(e.keyCode);
-    if(countpress() < 2 || e.type == "keyup") //ป้องกันไม่ให้มีการกดพร้อมกันเกิน 2 ปุ่ม
+    if(countpress() < 2 || e.type == "keyup") 
         button[key_code] = e.type == "keydown";
     presscount += e.type == "keyup";
-    // keypress.innerText = pressing;
     pressing = "";
 }
-//รายชื่อปุ่มตามลำดับ เอาไว้ loop set ค่าเฉยๆ
+
+
+//This function is used to determine how many keys are currently being held down, which is likely essential for the game's logic
+// It uses the button object and the buttonuse array (which was defined in your previous code snippet)
+//to keep track of the keys being pressed and then counts them using the countpress() function. The allkeyid object is used to map numeric values to note names for display or processing.
 var allkeyid = {0:"C", 1:"D", 2:"E", 3:"F", 4:"G", 5:"A", 6:"B", 7:"bC", 8:"bD", 9:"bF", 10:"bA", 11:"bB"};
 
-//นับจำนวณปุ่มที่ถูกกด ณ ปัจจุบัน (นับจากปุ่มที่ใช้เท่านั้น กดปุ่มอื่นไม่นำมานับรวมด้วย)
 function countpress(){
     var count = 0;
     for(i = 0 ; i <= 11 ; i++){
@@ -47,22 +55,26 @@ function countpress(){
     return count;
 }
 
-//Set ค่า style ปรับตำแหน่งของ piano key และ tile
+//In summary, this code iterates through a set of HTML elements represented by allkeyid values (presumably corresponding to musical notes or keys in a game)
+// and it adjusts their horizontal (left) position based on their x attribute and their vertical (top) position to a fixed value of 450 pixels. 
+//This code is likely positioning elements on the page or screen for a game or application with musical elements.
 for(i = 0 ; i <= 11 ; i++){
     var pk = document.getElementById(allkeyid[i])
     pk.style.left = pk.getAttribute("x")*50;
     pk.style.top = 450;
 }
 
+// This suggests that these elements have IDs like "TC," "TD," "TE," and so on, where the "T" prefix may indicate their type or category. The code positions these elements horizontally based on their x attributes.
+
 for(i = 0 ; i <= 11 ; i++){
     var pk = document.getElementById("T" + allkeyid[i])
     pk.style.left = pk.getAttribute("x")*50;
 }
 
-//ทำฟังก์ชันด้านล่างซ้ำๆ
+//So, this line of code is setting up a timer that will repeatedly call the whatkeypress function every 10 milliseconds.
 setInterval(whatkeypress, 10);
-
-//function เช็คว่าปุ่มใดถูกกดอยู่ และให้แสดงผลว่าปุ่มถูกกดโดยการเปลี่ยน style ของ ปุ่ม
+// It ensures that the game interface reflects the user's input and interactions.
+// The specific implementation details of the updatekeyart function would determine how these visual updates are applied.
 function whatkeypress(){
     for(i = 0 ; i <= 11 ; i++){
         if(button[keybutton[allkeyid[i]]]){
@@ -75,31 +87,26 @@ function whatkeypress(){
         }
     }   
 }
-
-//ฟังก์ชันเปลี่ยน status ของทุกๆอย่าง รับชื่อ element นั้นๆ และ สถานะที่จะเปลี่ยน
+//This function appears to be used in conjunction with the whatkeypress function to update the visual representation of musical notes or other game elements in response to user input (e.g., key presses).
 function updatekeyart(keyname, statset){
     var keypressed = document.getElementById(keyname);
     keypressed.setAttribute("status", statset);
 }
 
-//array เก็บ element ทุกตัวที่กำลงตกลงมา เริ่มต้นไม่มีสักตัว
 var fallingnote = [];
-
-//ฟังก์ชันปล่อย note ให้ตกลงมา รับค่า tile ที่จะให้ตก และ จำนวนจังหวะของ note แต่ละตัว
 function addnote(tileid, rythm){
-    var note = document.createElement("div"); //สร้าง Element note ออกมา
-    note.setAttribute("class", "note"); //set ค่า Attribute ต่างๆ ตั้ง class เป็น note
-    note.setAttribute("y", 0); //set ค่า y เริ่มต้น ว่าจะให้ปล่อยจากจุดไหน
-    note.setAttribute("size", rythm); //กำหนดขนาดของตัว note
-    note.setAttribute("keytohit", tileid.slice(1, tileid.length - 1)); //กำหนดปุ่มที่จะต้องกดเพื่อเล่นเสียง
-    note.setAttribute("soundkey", tileid.slice(1, tileid.length) + "-" + rythm); //กำหนดชื่อไฟล์เสียงที่จะเล่นเมื่อโดนกด
-    note.setAttribute("hit", "false"); //สถานะว่าโดนกดรึยัง
-    note.style.width = tilewidth[tileid];  //เปลี่ยนความกว้างโน๊ตให้เท่ากับขนาดของ tile
-    fallingnote.push(note); //นำ element นี้ใส่ใน fallingnote array
-    tile = document.getElementById(tileid.slice(0, tileid.length - 1)); //get Element ของ tile ที่ note จะไปอยู่
-    tile.appendChild(note); //ปล่อยโน๊ตลงไปใน Tile นั้น
+    var note = document.createElement("div"); 
+    note.setAttribute("class", "note");
+    note.setAttribute("y", 0); 
+    note.setAttribute("size", rythm);
+    note.setAttribute("keytohit", tileid.slice(1, tileid.length - 1));
+    note.setAttribute("soundkey", tileid.slice(1, tileid.length) + "-" + rythm);
+    note.setAttribute("hit", "false"); 
+    note.style.width = tilewidth[tileid]; 
+    fallingnote.push(note); 
+    tile = document.getElementById(tileid.slice(0, tileid.length - 1));
+    tile.appendChild(note); 
 }
-//เพลง เป็น array formatคือ ["ชื่อโน๊ต", "จำนวนจังหวะ"]
 var song = [["F3", 1], ["D3", 1], ["A2", 1], ["F3", 1], ["D3", 1], ["A2", 1], ["F3", 1], ["D3", 1], ["A2", 1], ["F3", 1], ["D3", 1], ["A2", 1], ["E3", 2], ["E3", 2], ["E3", 2],
 ["F3", 1], ["D3", 1], ["A2", 1], ["F3", 1], ["D3", 1], ["A2", 1], ["F3", 1], ["D3", 1], ["A2", 1], ["F3", 1], ["D3", 1], ["A2", 1], ["G3", 2], ["G3", 2], ["G3", 2],
 ["F3", 1], ["D3", 1], ["A2", 1], ["F3", 1], ["D3", 1], ["A2", 1], ["F3", 1], ["D3", 1], ["A2", 1], ["F3", 1], ["D3", 1], ["A2", 1], ["E3", 2], ["E3", 2], ["E3", 2],
@@ -122,8 +129,7 @@ var song = [["F3", 1], ["D3", 1], ["A2", 1], ["F3", 1], ["D3", 1], ["A2", 1], ["
 ["D3", 2], ["A3", 2], ["E3", 2], ["A3", 2], ["F3", 2], ["G3", 1], ["A3", 1], ["G3", 2], ["B3", 2], ["D4", 1], ["A3", 1], ["E4", 1], ["F4", 1], ["E4", 1], ["F4", 1], ["E4", 1], ["D4", 1], ["C4", 1], ["D4", 4], ["0", 1]]; 
 
 
-var songtime = 0; //นับเวลาว่าปัจจุบันเพลงกี่วินาทีแล้วฃ
-//Function เล่นเพลง จะปล่อยโน๊ตแต่ละตัวตามลำดับไล่ลงมา
+var songtime = 0; 
 var cordsong = [["D0", 4], ["0", 2], ["A0", 3], ["D1", 3], ["0", 1], ["E0", 3], ["E0", 3],
 ["D0", 4], ["0", 2], ["A0", 3], ["D1", 3],["0", 1], ["G0", 3], ["G0", 3],
 ["D0", 4], ["0", 2], ["A0", 3], ["D1", 3],["0", 1], ["E0", 3], ["E0", 3], 
@@ -205,12 +211,8 @@ function playsong(){
                     }
                 }, 6400)
             }
-        }, songtime*1000/Math.pow(speed, 2)); //ต้อง ^2 เพราะ speed ในการปล่อยเร็วขึ้น n เท่า และ speed ในการตกก็เร็วขึ้น n เท่า (n^2)
-    }
+        }, songtime*1000/Math.pow(speed, 2)); 
 }
-// playsong(); //เรียกใช้ฟังก์ชั่น ให้มันปล๋อยโน๊ตตกลงมาก
-
-//Function ทำให้โน๊ตทุกตัวตกลงมาเรื่อยๆ
 function falldownnote(noteid){
         var note = fallingnote[noteid];
         var posy = Number(note.getAttribute("y"));
@@ -219,49 +221,43 @@ function falldownnote(noteid){
         note.style.top = posy;
 }
 
-//Function ลบ Note ที่ตกลงมาจนเลยขอบไปแล้ว
 function delunbound(noteid){
     var note = fallingnote[noteid];
     if(note.getAttribute("hit") == "false"){
-        miss += 1; //หาก note ไม่ถูกกด miss + 1
+        miss += 1;
         combo = 0
     }
     if(note.getAttribute("hit") == "true"){
         combo += 1;
-        score += 100 + combo*10; //หาก note ถูกกด score + 1
+        score += 100 + combo*10; 
     }
     if(combo > maxcombo){
         maxcombo = combo;
     }
-    note.parentNode.removeChild(note)  //เอาโน๊ตออกจาก tile
+    note.parentNode.removeChild(note) 
     fallingnote.splice(noteid, 1);
-    notedowned += 1; //นับว่าโน๊ตตกลงมาเพิ่มแล้วอีก 1 ตัว
+    notedowned += 1; 
     accuracy.innerText = "Accuracy : " + ((notedowned - miss)/notedowned*100).toString().slice(0, 5) + "%";
 }
 
-//ฟังก์ชันเช็คว่า Note ที่ตกลงมาเลยขอบรึยัง
 function isunboundnote(noteid){
     var note = fallingnote[noteid];
     var posy = Number(note.getAttribute("y"));
     return (posy >= 480)
 }
 
-//Function เช็คว่า note โดนกดรึยัง ถ้าโดนกดให้เล่นเสียง
 function keyhit(){
     for(let i = 0 ; i < fallingnote.length ; i++){
         var posy = fallingnote[i].getAttribute("y");
         var notesize = Number(fallingnote[i].getAttribute("size"))*20;
         var canhit = (posy >= (450 - notesize)) && (posy <= 450);
-        var hit = canhit && button[keybutton[fallingnote[i].getAttribute("keytohit")]] //เช็คว่ากดโดนมั้ยจากตำแหน่ง y
-        if(fallingnote[i].getAttribute("hit") == "false" && hit){ //ถ้ายังไม่โดนกด และ กดโดน
+        var hit = canhit && button[keybutton[fallingnote[i].getAttribute("keytohit")]] 
+        if(fallingnote[i].getAttribute("hit") == "false" && hit){
             fallingnote[i].setAttribute("hit", hit);
-            playsound(fallingnote[i].getAttribute("soundkey"), 1); //เล่นเสียง
+            playsound(fallingnote[i].getAttribute("soundkey"), 1); 
         }
     }
 }
-
-//ทำฟังก์ชัน falldownnote เพื่อให้ note ทุกตัวตกตลอดเวลา - เช็คว่าพ้นขอบมั้ย - ถ้าพ้นขอบแล้วให้ลบ  Note ตัวนั้นออก
-//เป็น interval ที่เอาไว้ update ค่าตัวเลขที่แสดงต่างๆด้วยเนื่องจากทำงานตลอดเวลา เปลี่ยนพวกคะแนน และ ความแม่นยำ ต่างๆ
 setInterval(function(){
     if(fallingnote){
         for(let i = 0 ; i < fallingnote.length ; i ++){
@@ -278,6 +274,4 @@ setInterval(function(){
     Thecombo.innerText = "Combo : " + combo;
 }, 50/speed)
 
-// setInterval(function(){
-//     keyhit();
-// }, 50/speed)
+}
