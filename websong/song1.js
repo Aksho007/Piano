@@ -149,6 +149,9 @@ var cordsong = [["D0", 4], ["0", 2], ["A0", 3], ["D1", 3], ["0", 1], ["E0", 3], 
 ["A0", 4], ["A0", 4], ["D1", 4], ["B0", 4], ["bB0", 4], ["C1", 4], ["D1", 2], ["D1", 2], ["D1", 2], ["D1", 2],
 ["A0", 2], ["A0", 2], ["C1", 2], ["C1", 2], ["D1", 2], ["D1", 2], ["B0", 2], ["B0", 2], ["A0", 2], ["A0", 2], ["C1", 3], ["C1", 2], ["A0", 3], ["D0", 2]];
 
+//The purpose of this function is to perform a countdown from a specified duration (cd in seconds) and 
+//and then trigger some actions, such as playing a song and invoking the playcord function after the countdown is complete
+// It appears to be used for starting or synchronizing certain events in an application or game.
 
 var cordtime = 0;
 
@@ -171,7 +174,10 @@ function countdown(cd){
     }
 }
 
-
+//The purpose of the playcord function is to play a sequence of musical notes defined in the cordsong array.
+// It calculates the timing for each note based on their duration and plays the associated sound using the playsound function.
+// The speed variable is likely used to control the playback speed or tempo of the music.The purpose of the playcord function is to play a sequence of musical notes defined in the cordsong array. It calculates the timing for each note based on their duration and plays the associated sound using the playsound function.
+// The speed variable is likely used to control the playback speed or tempo of the music.
 
 function playcord(){
     for(let i = 0 ; i <= cordsong.length - 1 ; i++){
@@ -185,7 +191,9 @@ function playcord(){
     }
 }
 
-
+//The purpose of the playsong function is to play a sequence of musical notes defined in the song array and manage the game state.
+// It schedules the addition of visual notes, updates game statistics, and displays the final results when the song playback is complete. 
+//The speed variable is likely used to control the playback speed or tempo of the music.
 function playsong(){
     for(let i = 0 ; i <= song.length - 1 ; i++){
         songtime += song[i][1]*(i != 0) + 0.05;
@@ -213,6 +221,10 @@ function playsong(){
             }
         }, songtime*1000/Math.pow(speed, 2)); 
 }
+//The purpose of the falldownnote function is to control the animation of falling musical notes in a game or application.
+// By updating the position of the note and its visual representation, 
+//the function creates the illusion of notes falling down the screen at a speed determined by the speed variable
+
 function falldownnote(noteid){
         var note = fallingnote[noteid];
         var posy = Number(note.getAttribute("y"));
@@ -220,6 +232,9 @@ function falldownnote(noteid){
         note.setAttribute("y", posy);
         note.style.top = posy;
 }
+
+//The purpose of the delunbound function is to manage the game's logic related to hitting or missing musical notes, calculating the player's score and combo,
+// and updating game statistics like accuracy and maximum combo. It also removes the visual representation of the note that has been interacted with from the game interface.
 
 function delunbound(noteid){
     var note = fallingnote[noteid];
@@ -240,11 +255,21 @@ function delunbound(noteid){
     accuracy.innerText = "Accuracy : " + ((notedowned - miss)/notedowned*100).toString().slice(0, 5) + "%";
 }
 
+//The purpose of the isunboundnote function is to determine whether a musical note has reached a specific point in its downward motion
+//typically indicating that the player has missed the note. This function can be used to detect when a note should no longer be interactive and should be treated as a missed note, affecting the player's statistics in the game.
+
+
 function isunboundnote(noteid){
     var note = fallingnote[noteid];
     var posy = Number(note.getAttribute("y"));
     return (posy >= 480)
 }
+
+
+//The purpose of the keyhit function is to determine if the player has successfully hit a falling musical note based on their key presses and the note's position.
+// If a note is successfully hit, it updates the game state to reflect the hit, such as changing the hit attribute of the note and playing the corresponding sound
+//This function is likely part of a rhythm-based game or music-related application where timing and accuracy are important for gameplay.
+
 
 function keyhit(){
     for(let i = 0 ; i < fallingnote.length ; i++){
@@ -258,6 +283,9 @@ function keyhit(){
         }
     }
 }
+
+//In summary, these setInterval functions create a game loop that handles the animation of falling notes, updates the game's state, checks for successful note hits, and keeps track of the player's score and combo
+//The game loop runs at a rate determined by the value of speed, which affects the game's tempo and timing. 
 setInterval(function(){
     if(fallingnote){
         for(let i = 0 ; i < fallingnote.length ; i ++){
